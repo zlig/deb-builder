@@ -14,8 +14,6 @@ after_script:
 - ls -l $PACKAGE_NAME_VERSION
 - md5sum $PACKAGE_NAME_VERSION
 - dpkg --contents $PACKAGE_NAME_VERSION
-
-deploy:
 - |
   if [[ -n $FTP_USER && -n $FTP_PASSWORD && -n $FTP_URL ]];
   then
@@ -23,3 +21,9 @@ deploy:
     curl -u $FTP_USER:$FTP_PASSWORD --ftp-create-dirs -T $PACKAGE_NAME_VERSION ftp://$FTP_URL/repos/debian || DEPLOY_FAILURE=true ;
     if [[ $DEPLOY_FAILURE == 'true' ]]; then echo "Uploading package(s) failed!"; travis_terminate 1; fi;
   fi
+
+deploy:
+  provider: launchpad
+  slug: "LAUNCHPAD PROJECT SLUG"
+  oauth_token: "YOUR OAUTH_TOKEN"
+  oauth_token_secret: "YOUR OAUTH_TOKEN_SECRET"
