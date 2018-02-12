@@ -1,0 +1,26 @@
+env:
+  global:
+  - PACKAGE_NAME=deb-builder
+
+before_install:
+- export BUILD_VERSION=$(date "+%Y%m%d").$TRAVIS_BUILD_NUMBER
+- export PACKAGE_NAME_VERSION=$PACKAGE_NAME.$BUILD_VERSION.deb
+
+script:
+- dpkg-deb --build $PACKAGE_NAME
+- mv $PACKAGE_NAME.deb $PACKAGE_NAME_VERSION
+
+- echo "-------------------------------------------"
+- ls -l $PACKAGE_NAME_VERSION
+- md5sum $PACKAGE_NAME_VERSION
+- dpkg --contents $PACKAGE_NAME_VERSION
+- echo "-------------------------------------------"
+
+after_install:
+- |
+  if [[ -n $FTP_USER && -n $FTP_PASSWORD && -n $FTP_URL ]];
+  then
+    echo "Uploading package(s) to $FTP_URL ..."
+    curl -u $FTP_USER:$FTP_PASSWORD --ftp-create-dirs -T $PACKAGE_NAME_VERSION ftp://$FTP_URL/repos/debian || DEPLOY_FAILURE=true ;
+    if [[ $DEPLOY_FAILURE == 'true' ]]; then echo "Uploading package(s) failed!"; travis_terminate 1; fi;
+  fi
