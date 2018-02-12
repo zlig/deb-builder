@@ -14,6 +14,8 @@ after_script:
 - ls -l $PACKAGE_NAME_VERSION
 - md5sum $PACKAGE_NAME_VERSION
 - dpkg --contents $PACKAGE_NAME_VERSION
+
+after_success:
 - |
   echo "Uploading package(s) to $FTP_URL ..."
   curl -u $FTP_USER:$FTP_PASSWORD --ftp-create-dirs -T $PACKAGE_NAME_VERSION ftp://$FTP_URL/repos/debian || DEPLOY_FAILURE=true ;
